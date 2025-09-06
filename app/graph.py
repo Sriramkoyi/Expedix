@@ -1,8 +1,13 @@
 from langgraph.graph import StateGraph, END
+import os
+from dotenv import load_dotenv
+load_dotenv()
+OPENWEATHER_API_KEY = os.getenv("OPENWEATHER_API_KEY")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 from app.models import TripRequest, TripPlan, CostBreakdown
 from app.services import (
     WeatherService,
-    AttractionsService,
+    AttractionService,
     HotelService,
     CalculatorService,
     ItineraryService,
@@ -22,24 +27,31 @@ summary_service = SummaryService(model_name="gemini-1.5-pro")
 def fetch_weather(state: TripState):
     plan = state["plan"]
     req = state["request"]
-    plan.weather_current = weather_service.get_current_weather(req.city, req.country)
+    plan.weather_current = weather_service.get_current(req.city, req.country)
     return state
 
 def fetch_attractions(state: TripState):
     plan = state["plan"]
     req = state["request"]
-    plan.attractions = attraction_service.get_attractions(req.city)
-    plan.restaurants = attraction_service.get_restaurants(req.city)
-    plan.activities = attraction_service.get_activities(req.city)
+    plan.attractions = attraction_service.search(req.city)
+    plan.restaurants = attraction_service.restaurants(req.city)
+    plan.activities = attraction_service.activities(req.city)
     return state
 
 def fetch_hotels(state: TripState):
     plan = state["plan"]
     req = state["request"]
-    plan.hotel_cost = hotel_service.estimate_cost(
-        city=req.city, days=req.days, adults=req.adults
-    )
+
+    hotels = hotel_service.search(req.city, req.days, req.adults)
+
+    plan.hotels = hotels
+
+    plan.hotel_cost = hotel_service.estimate(hotels, req.days, req.adults)
+
+    plan.hotel_budget_range = hotel_service.budget_range(hotels, req.days, req.adults)
+
     return state
+
 
 def calculate_costs(state: TripState):
     plan = state["plan"]
@@ -56,9 +68,9 @@ def calculate_costs(state: TripState):
 
 def build_itinerary(state: TripState):
     plan = state["plan"]
-    req = state["request"]
-    plan.itinerary = itinerary_service.create_itinerary(plan, req.days)
+    plan.itinerary = itinerary_service.create_full_itinerary(plan)
     return state
+
 
 def generate_summary(state: TripState):
     plan = state["plan"]
@@ -84,3 +96,13 @@ def create_trip_graph():
     graph.add_edge("summary", END)
 
     return graph.compile()
+
+if __name__ == "__main__":
+    request = TripRequest(city="Paris", country="France", days=3, adults=2, currency="EUR")
+    plan = TripPlan(request=request)
+
+    graph = create_trip_graph()
+    final_state = graph.invoke({"request": request, "plan": plan})
+
+    print("\n=== Trip Summary ===")
+    print(final_state["plan"].summary)

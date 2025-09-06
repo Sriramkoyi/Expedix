@@ -4,8 +4,8 @@ from typing import List, Optional,Dict
 class TripRequest(BaseModel):
     city: str
     country: str
-    days:str
-    adults: str
+    days:int
+    adults: int
     currency:str="USD"
 
 class WeatherInfo(BaseModel):
@@ -44,7 +44,8 @@ class TripPlan(BaseModel):
     restaurants: Optional[List[Attraction]] = None
     activities: Optional[List[Attraction]] = None
     hotels: Optional[List[HotelOption]] = None
-    hotel_cost: Optional[float] = None
+    hotel_cost: Optional[float] = None  
+    hotel_budget_range: Optional[Dict[str, float]] = None  
     costs: Optional[CostBreakdown] = None
     itinerary: Optional[List[ItineraryItem]] = None
     summary: Optional[str] = None

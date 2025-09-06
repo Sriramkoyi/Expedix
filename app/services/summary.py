@@ -8,7 +8,10 @@ class SummaryService:
         """
         Initialize Gemini LLM for generating summaries.
         """
-        self.llm = ChatGoogleGenerativeAI(model=model_name, temperature=0.7)
+        self.llm = ChatGoogleGenerativeAI(
+    model="gemini-1.5-flash",  
+    temperature=0.7,
+)
 
         self.prompt = PromptTemplate.from_template("""
         You are a friendly and professional AI travel agent.

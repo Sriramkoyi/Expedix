@@ -3,7 +3,7 @@ import requests
 from typing import List
 from app.models import Attraction
 
-class AttractionsService:
+class AttractionService:
     def __init__(self):
         self.api_key = os.getenv("OPENTRIPMAP_API_KEY")
         self.base_url = "https://api.opentripmap.com/0.1/en/places"
@@ -57,3 +57,4 @@ class AttractionsService:
     def activities(self, city: str) -> List[Attraction]:
         """Cultural/entertainment activities"""
         return self._fetch(city, "cultural")
+    
