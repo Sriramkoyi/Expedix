@@ -1,4 +1,4 @@
-# **Expedix — Smart Travel Planner (Days · Budget · Weather) using LangGraph**
+# **Expedix — Smart Travel Planner**
 
 Expedix is a travel-planning assistant that generates personalized multi-day itineraries based on the number of days, user budget, and local weather. It uses **LangGraph** to orchestrate LLM prompts, tools, and decision pipelines so planning is transparent, modular, and easy to extend.
 
